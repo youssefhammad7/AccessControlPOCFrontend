@@ -1,0 +1,16 @@
+/* styles/input-styles.css */
+.textbox-default-1 {
+    background-color: #e8f4ff;
+  }
+  
+  .textbox-focus-1 {
+    background-color: #d1e8ff;
+  }
+  
+  .textbox-default-2 {
+    background-color: #fff0f0;
+  }
+  
+  .textbox-focus-2 {
+    background-color: #ffe0e0;
+  }

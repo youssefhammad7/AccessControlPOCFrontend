@@ -1,0 +1,12 @@
+/* styles/globals.css */
+[data-style-id="s1"] {
+    background-color: #161515;
+  }
+  
+  [data-style-id="s2"] {
+    background-color: #fff0f0;
+  }
+  
+  input:focus {
+    border-color: #4f46e5;
+  }
