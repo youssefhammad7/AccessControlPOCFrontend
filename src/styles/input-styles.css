@@ -1,16 +1,27 @@
 /* styles/input-styles.css */
 .textbox-default-1 {
     background-color: #e8f4ff;
-  }
+}
   
-  .textbox-focus-1 {
+.textbox-focus-1 {
     background-color: #d1e8ff;
-  }
+}
   
-  .textbox-default-2 {
+.textbox-default-2 {
     background-color: #fff0f0;
-  }
+}
   
-  .textbox-focus-2 {
+.textbox-focus-2 {
     background-color: #ffe0e0;
-  }
+}
+
+.button-default-3 {
+    background-color: #ef4444;
+    color: white;
+}
+
+.button-disabled-3 {
+    background-color: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+}

@@ -1,4 +1,3 @@
-// types/api-types.ts
 export interface StyleConfig {
     id: string;
     userName: string;
@@ -8,3 +7,16 @@ export interface StyleConfig {
     uiElementClassName: string;
     componentName: string;
   }
+
+export interface StyleConfig2 {
+  subjectId: number;
+  subjectName: string;
+  uiElementClassName: string;
+  description: string;
+  style: {
+    subjectStyleId: number;
+    styleId: number;
+    styleName: string;
+    styleDescription: string;
+  } | null;
+}

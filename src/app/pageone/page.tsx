@@ -10,6 +10,13 @@ import { StyleConfig } from '@/types/api-types';
 import '@/styles/input-styles.css';
 import axios, { AxiosError } from 'axios';
 
+interface Patient {
+  patientId: string;
+  patientName: string;
+  ssn: string;
+  deleteDisabled: boolean;
+}
+
 function PageOne() {
   const { logout } = useAuth();
   const [styleConfigs, setStyleConfigs] = useState<StyleConfig[]>([]);
@@ -19,28 +26,24 @@ function PageOne() {
   const [formData, setFormData] = useState({
     textBox1: '',
     textBox2: '',
-    dropdown: 'option1',
-    checkbox: false,
   });
 
-  // Function takes an array of StyleConfig objects and returns a cleanup function
-const applyStyles = (styles: StyleConfig[]) => {
-    // Array to store cleanup functions for removing event listeners
+  const [patients, setPatients] = useState<Patient[]>([
+    { patientId: "P001", patientName: "John Doe", ssn: "123-45-6789", deleteDisabled: false },
+    { patientId: "P002", patientName: "Jane Smith", ssn: "987-65-4321", deleteDisabled: true },
+  ]);
+
+  const applyStyles = (styles: StyleConfig[]) => {
     const cleanupFunctions: (() => void)[] = [];
-  
-    // Iterate through each style configuration in the styles array
     styles.forEach(styleConfig => {
-      // Find DOM element using the custom data-style-id attribute
-      const element = getElementByStyleId(styleConfig.uiElementClassName);
-      
-      // Only proceed if element is found
-      if (element) {
-        // Add the new style class to the element
-        element.classList.add(styleConfig.styleName);
-  
-      }
+      const elements = document.querySelectorAll(`[data-style-id="${styleConfig.uiElementClassName}"]`);
+      elements.forEach(element => {
+        if (element) {
+          element.classList.add(styleConfig.styleName);
+        }
+      });
     });
-  
+
     return () => {
       cleanupFunctions.forEach(cleanup => cleanup());
     };
@@ -77,7 +80,6 @@ const applyStyles = (styles: StyleConfig[]) => {
     };
   }, []);
 
-  // Apply styles when styleConfigs changes
   useEffect(() => {
     if (styleConfigs.length > 0 && !styleApplied.current) {
       const cleanup = applyStyles(styleConfigs);
@@ -86,7 +88,6 @@ const applyStyles = (styles: StyleConfig[]) => {
     }
   }, [styleConfigs]);
 
-  // Re-apply styles after DOM updates
   useEffect(() => {
     const observer = new MutationObserver(() => {
       if (styleConfigs.length > 0) {
@@ -97,23 +98,23 @@ const applyStyles = (styles: StyleConfig[]) => {
     observer.observe(document.body, {
       childList: true,
       subtree: true,
+      attributes: true,
+      attributeFilter: ['class']
     });
 
     return () => observer.disconnect();
   }, [styleConfigs]);
 
-  const dropdownOptions = [
-    { value: 'option1', label: 'Option 1' },
-    { value: 'option2', label: 'Option 2' },
-    { value: 'option3', label: 'Option 3' },
-  ];
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      [name]: value,
     }));
+  };
+
+  const handleDeletePatient = (patientId: string) => {
+    setPatients(patients.filter(patient => patient.patientId !== patientId));
   };
 
   if (loading) {
@@ -134,73 +135,83 @@ const applyStyles = (styles: StyleConfig[]) => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full">
-          <div className="bg-white p-8 rounded-lg shadow-md">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Page One</h2>
-              <button
-                onClick={logout}
-                className="px-4 py-2 text-sm text-white bg-red-600 rounded hover:bg-red-700"
-              >
-                Logout
-              </button>
-            </div>    
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Text Box 1</label>
-                <input
-                  type="text"
-                  name="textBox1"
-                  value={formData.textBox1}
-                  onChange={handleChange}
-                  data-style-id="s1"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2 outline-none transition-all duration-300"
-                />
-              </div>
+      <div className="min-h-screen bg-gray-100 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Patient Management</h2>
+          <button
+            onClick={logout}
+            className="px-4 py-2 text-sm text-white bg-red-600 rounded hover:bg-red-700"
+          >
+            Logout
+          </button>
+        </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Text Box 2</label>
-                <input
-                  type="text"
-                  name="textBox2"
-                  value={formData.textBox2}
-                  onChange={handleChange}
-                  data-style-id="s2"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2 outline-none transition-all duration-300"
-                />
-              </div>
+        <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-medium text-gray-700">Text Box 1</label>
+              <input
+                type="text"
+                name="textBox1"
+                value={formData.textBox1}
+                onChange={handleChange}
+                data-style-id="s1"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2 outline-none transition-all duration-300"
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Dropdown</label>
-                <select
-                  name="dropdown"
-                  value={formData.dropdown}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
-                >
-                  {dropdownOptions.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="checkbox"
-                  checked={formData.checkbox}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label className="ml-2 block text-sm text-gray-900">
-                  Checkbox Option
-                </label>
-              </div>
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-medium text-gray-700">Text Box 2</label>
+              <input
+                type="text"
+                name="textBox2"
+                value={formData.textBox2}
+                onChange={handleChange}
+                data-style-id="s2"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2 outline-none transition-all duration-300"
+              />
             </div>
           </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Patient ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Patient Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  SSN
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {patients.map((patient) => (
+                <tr key={patient.patientId}>
+                  <td className="px-6 py-4 whitespace-nowrap">{patient.patientId}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{patient.patientName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{patient.ssn}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() => handleDeletePatient(patient.patientId)}
+                      disabled={patient.deleteDisabled}
+                      data-style-id="s3"
+                      className="px-3 py-1 rounded"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </ProtectedRoute>
