@@ -10,7 +10,10 @@ export default function Home() {
             Go to Login
           </Link>
           <Link href="/pageone" className="text-blue-500">
-            Go to Page One
+          Patient Management
+          </Link>
+          <Link href="/pagetwo" className="text-blue-500">
+            User Management
           </Link>
         </div>
       </div>

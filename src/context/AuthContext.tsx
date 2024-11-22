@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const user = authService.getUser();
       setIsAuthenticated(true);
       setUser(user);
-      router.push('/pageone');
+      router.push('/pagetwo');
     } catch (error) {
       throw error;
     }
